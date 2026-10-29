@@ -17,6 +17,9 @@ while True:
 def pixelate(img: Image, pixel_size: int) -> None:
     img = img.convert("RGBA")
     width, height = img.size
+
+    if pixel_size < 1 or pixel_size > width or pixel_size > height:
+        raise ValueError("Pixel size must be within native resolution")
     # Cut off rightmost or bottom strip if image is uneven to ensure complete pixels
     width -= width % pixel_size
     height -= height % pixel_size
@@ -48,24 +51,28 @@ def pixelate(img: Image, pixel_size: int) -> None:
                 red_avg = round(math.sqrt(red_sq / alpha_sum))
                 green_avg = round(math.sqrt(green_sq / alpha_sum))
                 blue_avg = round(math.sqrt(blue_sq / alpha_sum))
-                alpha_avg = round(alpha_sum / (pixel_size**2))
+                # Pixels are either there or not
+                if alpha_sum / (pixel_size**2) >= 128:
+                    alpha_avg = 255
+                else:
+                    alpha_avg = 0
                 new_px = (red_avg, green_avg, blue_avg, alpha_avg)
 
             for cx in range(x, x + pixel_size):
                 for cy in range(y, y + pixel_size):
                     pixels[cx, cy] = new_px
 
-            if len(file_name.split(".")) == 2:
-                file, ext = file_name.split(".")
-            else:
-                i = len(file_name) - 1
-                while file_name[i] != ".":
-                    i -= 1
-                file, ext = file_name[:i], file_name[i+1:]
-            
-            new_filename = f"{file}-pixelated.{ext}"
+    if len(file_name.split(".")) == 2:
+        file, ext = file_name.split(".")
+    else:
+        i = len(file_name) - 1
+        while file_name[i] != ".":
+            i -= 1
+        file, ext = file_name[:i], file_name[i+1:]
+    
+    new_filename = f"{file}-pixelated.{ext}"
 
-            img_copy.save(new_filename)
+    img_copy.save(new_filename)
 
 with Image.open(path_to_image) as img:
     pixelate(img, size_of_pixel)

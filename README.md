@@ -1,6 +1,6 @@
 # image-pixel-converter
 
-Command line image to pixel art converter, provide a path to an image and choose your resolution
+Command line image to pixel art converter, provide a path to an image and choose your pixel size (keeps resolution for image quality)
 
 ## Install
 
